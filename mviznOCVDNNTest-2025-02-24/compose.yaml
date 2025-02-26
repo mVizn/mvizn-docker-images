@@ -1,0 +1,31 @@
+services:
+  mviznyolosimpleinferer:
+    user: "${UID}:${GID}"
+    gpus:
+      - driver: nvidia
+        count: all
+        capabilities: ["gpu"]
+    build:
+      context: ./
+      dockerfile: Dockerfile.inferrer
+    container_name: mviznyolosimpleinferer
+    restart: unless-stopped
+    command: ["python3", "-u", "app.py"]
+    ports:
+      - "8000:8000"   # if your app listens on a port; adjust as needed
+    # Optional: mount a volume if you want to persist logs or enable live development
+    volumes:
+      - /dev/shm:/dev/shm
+      - /home/mvizn/Code/mvizn-weights:/weights
+
+
+  flask_app:
+    container_name: flask_app
+    build:
+      context: ./
+      dockerfile: Dockerfile.simpleflask
+    restart: unless-stopped
+    ports:
+      - "5000:5000"
+    volumes:
+      - /dev/shm:/dev/shm
